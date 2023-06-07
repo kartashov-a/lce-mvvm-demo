@@ -20,7 +20,7 @@ class SimpleFeatureActivity : LCEActivity() {
 
         viewModel.fetchData()
             .subscribe { request ->
-                showRequest(request) { data ->
+                showViewState(request) { data ->
                     viewBinding.content.text = data
                 }
             }.disposeOnDestroy()

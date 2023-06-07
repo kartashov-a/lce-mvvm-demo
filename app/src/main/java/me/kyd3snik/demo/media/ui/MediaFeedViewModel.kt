@@ -5,7 +5,7 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
-import me.kyd3snik.demo.lce.asRequest
+import me.kyd3snik.demo.lce.toViewState
 import me.kyd3snik.demo.media.data.MediaFeedRepository
 import me.kyd3snik.demo.media.ui.model.TopicViewState
 import me.kyd3snik.demo.simple.disposeOnDestroy
@@ -24,8 +24,8 @@ class MediaFeedViewModel(
     fun fetchData() {
         Observable.combineLatest(
             repository.fetchTopics()
-                .map { TopicViewState.map(it) }.asRequest(),
-            repository.fetchPosts().asRequest(),
+                .map { TopicViewState.map(it) }.toViewState(),
+            repository.fetchPosts().toViewState(),
             ::Pair
         )
             .subscribeOn(Schedulers.io())
@@ -40,10 +40,10 @@ class MediaFeedViewModel(
         repository.fetchPosts(topicId)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .asRequest()
+            .toViewState()
             .subscribe { postsRequest ->
                 if (!postsRequest.isLoading){
-                    currentState = currentState.copy(postsRequest = postsRequest)
+                    currentState = currentState.copy(postsViewState = postsRequest)
                 }
             }.disposeOnDestroy()
     }

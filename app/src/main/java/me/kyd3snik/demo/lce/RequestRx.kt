@@ -5,16 +5,16 @@ import io.reactivex.Observable
 import io.reactivex.Single
 
 
-fun <T : Any> Observable<T>.asRequest(): Observable<Request<T>> = this
-    .map<Request<T>> { data -> Request.Content(data) }
-    .startWith(Request.Loading)
-    .onErrorReturn { error -> Request.Error(error) }
+fun <T : Any> Observable<T>.toViewState(): Observable<ViewState<T>> = this
+    .map<ViewState<T>> { data -> ContentViewState(data) }
+    .startWith(LoadingViewState)
+    .onErrorReturn { error -> ErrorViewState(error) }
 
-fun <T : Any> Single<T>.asRequest(): Observable<Request<T>> = toObservable().asRequest()
+fun <T : Any> Single<T>.toViewState(): Observable<ViewState<T>> = toObservable().toViewState()
 
-fun <T : Any> Maybe<T>.asRequest(): Observable<Request<T?>> = this
-    .map<Request<T?>> { data -> Request.Content(data) }
-    .switchIfEmpty(Single.just(Request.Content(null)))
+fun <T : Any> Maybe<T>.toViewState(): Observable<ViewState<T?>> = this
+    .map<ViewState<T?>> { data -> ContentViewState(data) }
+    .switchIfEmpty(Single.just(ContentViewState(null)))
     .toObservable()
-    .startWith(Request.Loading)
-    .onErrorReturn { error -> Request.Error(error) }
+    .startWith(LoadingViewState)
+    .onErrorReturn { error -> ErrorViewState(error) }

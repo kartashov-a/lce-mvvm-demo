@@ -1,21 +1,26 @@
 package me.kyd3snik.demo.media.ui
 
-import me.kyd3snik.demo.lce.Request
+import me.kyd3snik.demo.lce.CompositeViewState
+import me.kyd3snik.demo.lce.ContentViewState
+import me.kyd3snik.demo.lce.LoadingViewState
+import me.kyd3snik.demo.lce.ViewState
 import me.kyd3snik.demo.media.data.Post
 import me.kyd3snik.demo.media.ui.model.TopicViewState
 
 data class MediaFeedViewState(
-    val topicsRequest: Request<List<TopicViewState>> = Request.Loading,
-    val postsRequest: Request<List<Post>> = Request.Loading
+    val topicsViewState: ViewState<List<TopicViewState>> = LoadingViewState,
+    val postsViewState: ViewState<List<Post>> = LoadingViewState
 ) {
 
-    val isLoading: Boolean = topicsRequest.isLoading || postsRequest.isLoading
-    val errorOrNull: Throwable? = topicsRequest.errorOrNull ?: postsRequest.errorOrNull
+    val compositeViewState = CompositeViewState(topicsViewState, postsViewState)
 
-    val topics: List<TopicViewState> = topicsRequest.dataOrNull.orEmpty()
-    val posts = postsRequest.dataOrNull.orEmpty()
+    val isLoading: Boolean = topicsViewState.isLoading || postsViewState.isLoading
+    val errorOrNull: Throwable? = topicsViewState.errorOrNull ?: postsViewState.errorOrNull
+
+    val topics: List<TopicViewState> = topicsViewState.dataOrNull.orEmpty()
+    val posts = postsViewState.dataOrNull.orEmpty()
 
     fun selectTopic(topicId: String): MediaFeedViewState = copy(
-        topicsRequest = Request.Content(topics.map { it.copy(isSelected = it.id == topicId) })
+        topicsViewState = ContentViewState(topics.map { it.copy(isSelected = it.id == topicId) })
     )
 }
